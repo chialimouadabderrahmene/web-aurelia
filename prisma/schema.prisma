@@ -1,0 +1,526 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  OWNER
+  CONFIRMATION_AGENT
+  STOCK_MANAGER
+  FINANCE_MANAGER
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         AdminRole
+  createdAt    DateTime  @default(now())
+  lastLoginAt  DateTime?
+
+  notes             CustomerNote[]
+  confirmedOrders   Order[]           @relation("ConfirmedBy")
+  expenses          Expense[]
+  purchaseOrders    PurchaseOrder[]   @relation("PoCreatedBy")
+  pushSubscriptions PushSubscription[]
+}
+
+model PushSubscription {
+  id           String    @id @default(cuid())
+  adminUserId  String
+  adminUser    AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  endpoint     String    @unique
+  p256dh       String
+  auth         String
+  createdAt    DateTime  @default(now())
+
+  @@index([adminUserId])
+}
+
+enum Category {
+  SHOULDER_BAG
+  TOTE
+  TOP_HANDLE
+  CLUTCH
+  WEEKENDER
+  CROSSBODY
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  sku             String   @unique
+  nameEn          String
+  nameAr          String
+  descriptionEn   String
+  descriptionAr   String
+  materialsEn     String
+  materialsAr     String
+  dimensions      String
+  careEn          String
+  careAr          String
+  category        Category
+  price           Int
+  compareAtPrice  Int?
+  costPrice       Int
+  materialCost    Int      @default(0)
+  packagingCost   Int      @default(0)
+  adsCost         Int      @default(0)
+  otherCost       Int      @default(0)
+  originCountry   String
+  stockQty        Int      @default(0)
+  isBestSeller    Boolean  @default(false)
+  isNew           Boolean  @default(false)
+  isPublished     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  colors          ProductColor[]
+  images          ProductImage[]
+  orderItems      OrderItem[]
+  flashSaleLinks  FlashSaleProduct[]
+  bundleLinks     BundleItem[]
+  poItems         PurchaseOrderItem[]
+  stockMovements  StockMovement[]
+
+  @@index([category])
+  @@index([isPublished])
+  @@index([stockQty])
+}
+
+model ProductColor {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  nameEn    String
+  nameAr    String
+  hex       String
+  sortOrder Int     @default(0)
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0)
+}
+
+enum OrderStatus {
+  PENDING
+  TENTATIVE
+  CONFIRMED
+  POSTPONED
+  DELIVERED
+  CANCELLED
+}
+
+model Customer {
+  id              String    @id @default(cuid())
+  phone           String    @unique
+  name            String
+  wilaya          String?
+  commune         String?
+  address         String?
+  tags            String[]  @default([])
+  isVip           Boolean   @default(false)
+  isBlacklisted   Boolean   @default(false)
+  referralCode    String    @unique
+  referredByCode  String?
+  createdAt       DateTime  @default(now())
+
+  orders    Order[]
+  notes     CustomerNote[]
+  events    CustomerEvent[]
+
+  @@index([createdAt])
+}
+
+model CustomerNote {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  body       String
+  authorId   String?
+  author     AdminUser? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+
+  @@index([customerId])
+}
+
+model CustomerEvent {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type       String
+  message    String
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  customerId     String
+  customer       Customer    @relation(fields: [customerId], references: [id])
+  customerName   String
+  phone          String
+  wilaya         String
+  commune        String
+  address        String
+  status         OrderStatus @default(PENDING)
+  totalAmount    Int
+  totalCost      Int
+  discountAmount Int         @default(0)
+  couponCode     String?
+  giftCardCode   String?
+  giftCardAmount Int         @default(0)
+  referralCode   String?
+  affiliateCode  String?
+  deliveryPrice  Int         @default(0)
+  confirmedByUserId String?
+  confirmedByUser   AdminUser? @relation("ConfirmedBy", fields: [confirmedByUserId], references: [id], onDelete: SetNull)
+  commissionCredited Boolean  @default(false)
+  isRead         Boolean     @default(false)
+  statusNote     String?
+  ecotrackTrackingId String?
+  ecotrackStatus      String?
+  ecotrackError       String?
+  balanceCredited     Boolean  @default(false)
+  createdAt      DateTime    @default(now())
+  confirmedAt    DateTime?
+
+  items  OrderItem[]
+  events OrderEvent[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([confirmedAt])
+  @@index([customerId])
+  @@index([confirmedByUserId])
+  @@index([phone])
+}
+
+model OrderEvent {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  actorName String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  nameEn      String
+  nameAr      String
+  color       String
+  colorHex    String
+  price       Int
+  costPrice   Int
+  qty         Int
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  type            DiscountType
+  value           Int
+  minOrderAmount  Int?
+  usageLimit      Int?
+  usedCount       Int          @default(0)
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+}
+
+model GiftCard {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  initialBalance  Int
+  balance         Int
+  isActive        Boolean   @default(true)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model FlashSale {
+  id              String    @id @default(cuid())
+  name            String
+  discountPercent Int
+  startsAt        DateTime
+  endsAt          DateTime
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+
+  products FlashSaleProduct[]
+}
+
+model FlashSaleProduct {
+  id          String    @id @default(cuid())
+  flashSaleId String
+  flashSale   FlashSale @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([flashSaleId, productId])
+}
+
+model Bundle {
+  id         String   @id @default(cuid())
+  nameEn     String
+  nameAr     String
+  price      Int
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  items BundleItem[]
+}
+
+model BundleItem {
+  id        String  @id @default(cuid())
+  bundleId  String
+  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  qty       Int     @default(1)
+}
+
+model AbandonedCart {
+  id              String    @id @default(cuid())
+  sessionId       String    @unique
+  phone           String?
+  name            String?
+  itemsJson       String
+  totalAmount     Int
+  recoveredOrderId String?
+  createdAt       DateTime  @default(now())
+  lastSeenAt      DateTime  @updatedAt
+}
+
+model Affiliate {
+  id              String   @id @default(cuid())
+  name            String
+  code            String   @unique
+  commissionRate  Int
+  totalEarned     Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
+
+model DeliveryPrice {
+  id         String @id @default(cuid())
+  wilayaCode String @unique
+  wilayaName String
+  price      Int    @default(0)
+}
+
+enum ExpenseCategory {
+  RENT
+  SALARIES
+  MARKETING
+  PACKAGING
+  SHIPPING
+  UTILITIES
+  SOFTWARE
+  MAINTENANCE
+  TAXES
+  INVENTORY
+  OTHER
+}
+
+model Expense {
+  id              String          @id @default(cuid())
+  date            DateTime        @default(now())
+  category        ExpenseCategory
+  label           String
+  amount          Int
+  note            String?
+  createdByUserId String?
+  createdByUser   AdminUser?      @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdAt       DateTime        @default(now())
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  note      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  purchaseOrders PurchaseOrder[]
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id          String              @id @default(cuid())
+  poNumber    String              @unique
+  supplierId  String
+  supplier    Supplier            @relation(fields: [supplierId], references: [id])
+  status      PurchaseOrderStatus @default(DRAFT)
+  note        String?
+  createdAt   DateTime            @default(now())
+  orderedAt   DateTime?
+  receivedAt  DateTime?
+
+  createdByUserId String?
+  createdByUser   AdminUser? @relation("PoCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  items PurchaseOrderItem[]
+
+  @@index([status])
+  @@index([supplierId])
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String?
+  product         Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  nameEn          String
+  qty             Int
+  unitCost        Int
+  receivedQty     Int           @default(0)
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+enum StockMovementType {
+  SALE
+  RESTOCK
+  ADJUSTMENT
+  DAMAGE
+  RETURN
+}
+
+model StockMovement {
+  id             String            @id @default(cuid())
+  productId      String
+  product        Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type           StockMovementType
+  qtyChange      Int
+  qtyAfter       Int
+  reason         String?
+  relatedOrderId String?
+  relatedPoId    String?
+  actorName      String?
+  createdAt      DateTime          @default(now())
+
+  @@index([productId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorName  String
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  createdAt  DateTime @default(now())
+
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+model FaqItem {
+  id         String   @id @default(cuid())
+  questionEn String
+  questionAr String
+  answerEn   String
+  answerAr   String
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  authorName String
+  rating     Int      @default(5)
+  text       String
+  product    String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model SiteContent {
+  id                  String @id @default("singleton")
+  orderConfirmTitleEn String @default("Order confirmed")
+  orderConfirmTitleAr String @default("تم تأكيد الطلب")
+  orderConfirmBodyEn  String @default("Thank you. Your order is being prepared. We will call to confirm delivery details shortly.")
+  orderConfirmBodyAr  String @default("شكرًا لك. طلبك قيد التجهيز. سنتصل بك قريبًا لتأكيد تفاصيل التوصيل.")
+
+  aboutEyebrowEn String @default("Our story")
+  aboutEyebrowAr String @default("قصتنا")
+  aboutTitleEn   String @default("Quiet luxury, made for every woman")
+  aboutTitleAr   String @default("فخامة هادئة، لكل امرأة")
+  aboutP1En      String @default("AURELIA was born from a simple frustration — luxury handbags were either impossibly expensive, or built to shout rather than speak. We wanted neither.")
+  aboutP1Ar      String @default("وُلدت AURELIA من إحباط بسيط — حقائب فاخرة إما باهظة الثمن بشكل مبالغ فيه، أو مصممة لتصرخ بدل أن تتحدث بهدوء. لم نرغب في أي من الاثنين.")
+  aboutP2En      String @default("Every piece we design starts with restraint: soft, sculpted silhouettes, considered hardware, and materials chosen to age gracefully. No logos. No trend cycles. Just pieces meant to become part of your everyday, for years.")
+  aboutP2Ar      String @default("كل قطعة نصممها تبدأ من البساطة: خطوط ناعمة ومنحوتة بعناية، تفاصيل معدنية مدروسة، وخامات تزداد جمالًا مع الوقت. بلا شعارات. بلا موضة عابرة. فقط قطع تصبح جزءًا من يومك، لسنوات.")
+  aboutP3En      String @default("Designed with women across Algeria in mind, AURELIA delivers nationwide with cash on delivery — because trust should never be a barrier to owning something beautiful.")
+  aboutP3Ar      String @default("صُممت AURELIA لتناسب المرأة الجزائرية في كل مكان، ونوصل لجميع الولايات مع الدفع عند الاستلام — لأن الثقة يجب ألا تكون عائقًا أمام امتلاك شيء جميل.")
+
+  aboutStatCustomers String @default("2,300+")
+  aboutStatWilayas   String @default("58")
+  aboutStatRating    String @default("4.9 / 5")
+
+  heroVideoUrl String @default("https://jfoxyvsxsguz29h1.public.blob.vercel-storage.com/brand/hero-video.mp4")
+
+  buyNowTitleEn    String @default("Buy Now — Fast Checkout")
+  buyNowTitleAr    String @default("اطلبي الآن — دفع سريع")
+  buyNowSubtitleEn String @default("Order directly, no account needed. Pay cash on delivery.")
+  buyNowSubtitleAr String @default("اطلبي مباشرة، بدون حساب. الدفع نقدًا عند الاستلام.")
+
+  trustDeliveryEn String @default("Fast delivery, 2–5 days")
+  trustDeliveryAr String @default("توصيل سريع خلال 2 إلى 5 أيام")
+  trustCodEn      String @default("Cash on Delivery")
+  trustCodAr      String @default("الدفع عند الاستلام")
+  trustReturnsEn  String @default("7-day easy returns")
+  trustReturnsAr  String @default("إرجاع سهل خلال 7 أيام")
+}
+
+model Settings {
+  id                       String  @id @default("singleton")
+  confirmationCommission   Int     @default(100)
+  ecotrackBaseUrl          String?
+  ecotrackApiToken         String?
+  ecotrackEnabled          Boolean @default(false)
+  ecotrackWebhookSecret    String?
+  cashBalance              Int     @default(0)
+}

@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #b8935f;
+  color: #ffffff;
+}
+
+[dir="rtl"] {
+  --font-display: var(--font-display-ar);
+  --font-body: var(--font-body-ar);
+}
+
+.admin-scope {
+  --font-display: var(--font-admin);
+  --font-body: var(--font-admin);
+}
+
+/* thin premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #e7e2d9;
+  border-radius: 999px;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0ede7 0%, #f8f6f2 20%, #f0ede7 40%);
+  background-size: 1400px 100%;
+}
+
+.eyebrow {
+  @apply text-[11px] font-body font-medium uppercase tracking-widest2 text-ink/60;
+}
+
+.container-aurelia {
+  @apply mx-auto w-full max-w-screen-2xl px-5 md:px-10;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl3 bg-ink px-8 py-4 font-body text-[13px] font-medium uppercase tracking-widest2 text-white transition-all duration-500 ease-premium hover:bg-gold active:scale-[0.98];
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl3 border border-ink/15 bg-transparent px-8 py-4 font-body text-[13px] font-medium uppercase tracking-widest2 text-ink transition-all duration-500 ease-premium hover:border-ink active:scale-[0.98];
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-full px-5 py-3 font-body text-[13px] font-medium text-ink/70 transition-colors duration-300 hover:text-ink;
+}
+
+.input {
+  @apply w-full rounded-xl2 border border-line bg-cream px-4 py-3 font-body text-sm text-ink placeholder:text-ink/40 focus:border-gold focus:outline-none;
+}

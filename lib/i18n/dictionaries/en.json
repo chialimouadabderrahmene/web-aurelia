@@ -1,0 +1,230 @@
+{
+  "nav": {
+    "collection": "Collection",
+    "about": "About",
+    "reviews": "Reviews",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "search": "Search",
+    "wishlist": "Wishlist",
+    "cart": "Cart"
+  },
+  "bottomNav": {
+    "home": "Home",
+    "shop": "Shop",
+    "saved": "Saved",
+    "bag": "Bag",
+    "account": "Account"
+  },
+  "common": {
+    "shopCollection": "Shop Collection",
+    "addToBag": "Add to Bag",
+    "preorder": "Pre-order",
+    "viewAll": "View all",
+    "quantity": "Quantity",
+    "color": "Color",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "shipping": "Shipping",
+    "back": "Back",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "remove": "Remove"
+  },
+  "hero": {
+    "eyebrow": "Autumn Collection — 2026",
+    "title": "AURELIA",
+    "subtitle": "Quiet luxury for every woman. Sculpted handbags, designed to disappear into your everyday — and elevate it.",
+    "shopCollection": "Shop Collection",
+    "ourStory": "Our Story"
+  },
+  "collectionPreview": {
+    "eyebrow": "Shop by category",
+    "title": "Find your everyday piece"
+  },
+  "featured": {
+    "eyebrow": "Best sellers",
+    "title": "Loved, again and again",
+    "viewAll": "View all"
+  },
+  "editorial": {
+    "eyebrow": "The Maison",
+    "title": "Made for the woman who carries the world, quietly.",
+    "body": "Every AURELIA piece is designed with restraint — soft lines, considered hardware, and materials that age with grace. No logos. No noise. Just presence.",
+    "cta": "Discover our story"
+  },
+  "instagram": {
+    "eyebrow": "@aurelia.dz",
+    "title": "Styled by you"
+  },
+  "reviewsSection": {
+    "eyebrow": "Customer love",
+    "title": "4.9 out of 5, from 2,300+ women"
+  },
+  "newsletter": {
+    "title": "Join the inner circle",
+    "subtitle": "Early access to new arrivals, private sales, and styling notes.",
+    "placeholder": "Your email address",
+    "subscribe": "Subscribe",
+    "thanks": "Welcome — check your inbox."
+  },
+  "footer": {
+    "tagline": "Quiet luxury for every woman. Designed in Algeria, made to last.",
+    "shop": "Shop",
+    "bestSellers": "Best Sellers",
+    "newArrivals": "New Arrivals",
+    "support": "Support",
+    "orderTracking": "Order Tracking",
+    "company": "Company",
+    "copyright": "All rights reserved.",
+    "cod": "Cash on Delivery available across all 58 wilayas."
+  },
+  "collectionPage": {
+    "eyebrow": "The full collection",
+    "title": "Every piece, considered",
+    "filterAll": "All",
+    "filterBestSellers": "Best Sellers",
+    "filterNew": "New Arrivals",
+    "empty": "No products yet — check back soon."
+  },
+  "product": {
+    "origin": "Imported from",
+    "installments": "installments available",
+    "preorderNote": "Pre-order — ships as soon as new stock arrives",
+    "descriptionTab": "Description",
+    "materialsTab": "Materials",
+    "dimensionsTab": "Dimensions",
+    "careTab": "Care",
+    "trustDelivery": "Fast delivery, 2–5 days",
+    "trustCod": "Cash on Delivery",
+    "trustReturns": "7-day easy returns",
+    "relatedEyebrow": "You may also like",
+    "relatedTitle": "Complete the look"
+  },
+  "buyNow": {
+    "title": "Buy Now — Fast Checkout",
+    "subtitle": "Order directly, no account needed. Pay cash on delivery.",
+    "submit": "Confirm Order",
+    "phoneInvalid": "Enter a valid Algerian phone number (e.g. 0551234567)"
+  },
+  "cart": {
+    "title": "Your Bag",
+    "empty": "Your bag is empty",
+    "emptySubtitle": "Explore the collection and find your next everyday piece.",
+    "summary": "Order Summary",
+    "shippingCalculated": "Calculated at checkout",
+    "checkout": "Proceed to Checkout"
+  },
+  "cartDrawer": {
+    "empty": "Your bag is empty."
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Less than 30 seconds. Pay cash when your order arrives.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Amina Khaldi",
+    "phone": "Phone Number",
+    "phonePlaceholder": "05XX XX XX XX",
+    "wilaya": "Wilaya",
+    "selectWilaya": "Select wilaya",
+    "commune": "Commune",
+    "communePlaceholder": "Your commune",
+    "address": "Delivery Address",
+    "addressPlaceholder": "Street, building, floor",
+    "paymentMethod": "Payment method:",
+    "cod": "Cash on Delivery",
+    "confirmOrder": "Confirm Order",
+    "placingOrder": "Placing order…",
+    "error": "Something went wrong. Please try again.",
+    "summary": "Order Summary",
+    "nothingTitle": "Nothing to checkout",
+    "shopNow": "Shop Collection",
+    "confirmedTitle": "Order confirmed",
+    "confirmedBody": "Thank you. Your order is being prepared. We will call to confirm delivery details shortly.",
+    "trackOrder": "Track Order",
+    "continueShopping": "Continue Shopping"
+  },
+  "wishlist": {
+    "title": "Your Wishlist",
+    "empty": "Nothing saved yet",
+    "emptySubtitle": "Tap the heart on any piece to save it here for later."
+  },
+  "about": {
+    "eyebrow": "Our story",
+    "title": "Quiet luxury, made for every woman",
+    "p1": "AURELIA was born from a simple frustration — luxury handbags were either impossibly expensive, or built to shout rather than speak. We wanted neither.",
+    "p2": "Every piece we design starts with restraint: soft, sculpted silhouettes, considered hardware, and materials chosen to age gracefully. No logos. No trend cycles. Just pieces meant to become part of your everyday, for years.",
+    "p3": "Designed with women across Algeria in mind, AURELIA delivers nationwide with cash on delivery — because trust should never be a barrier to owning something beautiful.",
+    "statCustomers": "Happy customers",
+    "statWilayas": "Wilayas delivered",
+    "statRating": "Average rating"
+  },
+  "faq": {
+    "eyebrow": "Support",
+    "title": "Frequently asked questions",
+    "items": [
+      { "q": "Do you offer Cash on Delivery?", "a": "Yes — COD is available on every order, across all 58 wilayas in Algeria." },
+      { "q": "How long does delivery take?", "a": "2–5 business days depending on your wilaya. You'll receive a call to confirm before dispatch." },
+      { "q": "What materials are used?", "a": "All AURELIA bags use premium vegan leather with brushed or polished hardware, chosen for durability and a soft hand-feel." },
+      { "q": "Can I return or exchange my order?", "a": "Yes, within 7 days of delivery, provided the item is unused and in original packaging." },
+      { "q": "How do I track my order?", "a": "Visit the Order Tracking page and enter your order number, sent to you via SMS after confirmation." }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Get in touch",
+    "title": "Contact Us",
+    "phone": "0550 00 00 00",
+    "email": "hello@aurelia.dz",
+    "address": "Algiers, Algeria",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "Your email",
+    "messagePlaceholder": "Your message",
+    "send": "Send Message",
+    "sent": "Message sent — we'll reply within 24 hours."
+  },
+  "track": {
+    "eyebrow": "Order Tracking",
+    "title": "Track your order",
+    "placeholder": "Order number e.g. AUR-482913",
+    "phonePlaceholder": "Phone number e.g. 0551234567",
+    "modeOrder": "By Order Number",
+    "modePhone": "By Phone Number",
+    "ordersFound": "{n} order(s) found — select one to view its timeline",
+    "timelineTitle": "Order Timeline",
+    "trackBtn": "Track",
+    "searching": "Searching…",
+    "notFound": "Order not found. Check your order number and try again.",
+    "notFoundPhone": "No orders found for this phone number.",
+    "stepConfirmed": "Order Confirmed",
+    "stepPreparing": "Preparing",
+    "stepOutForDelivery": "Out for Delivery",
+    "stepDelivered": "Delivered",
+    "cancelledMsg": "This order was cancelled. Contact us if you have questions.",
+    "postponedMsg": "Delivery for this order has been postponed. We'll be in touch to reschedule.",
+    "pendingMsg": "Your order is awaiting confirmation. We will call you shortly.",
+    "tentativeMsg": "Your order is being verified. We will call you shortly to confirm.",
+    "confirmedMsg": "Your order is confirmed and being prepared. Estimated arrival: 2–5 business days.",
+    "deliveredMsg": "Your order has been delivered. Thank you for shopping with AURELIA."
+  },
+  "account": {
+    "title": "Sign in to AURELIA",
+    "subtitle": "Track orders, save your details, and check out faster next time.",
+    "trackOrder": "Track an Order",
+    "shopCollection": "Shop Collection"
+  },
+  "notFound": {
+    "eyebrow": "Error 404",
+    "title": "This page wandered off",
+    "subtitle": "The page you're looking for doesn't exist, or may have moved.",
+    "backHome": "Back to Home"
+  },
+  "categories": {
+    "SHOULDER_BAG": "Shoulder Bag",
+    "TOTE": "Tote",
+    "TOP_HANDLE": "Top Handle",
+    "CLUTCH": "Clutch",
+    "WEEKENDER": "Weekender",
+    "CROSSBODY": "Crossbody"
+  }
+}
