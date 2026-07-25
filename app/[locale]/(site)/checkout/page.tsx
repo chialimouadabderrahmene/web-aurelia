@@ -100,6 +100,13 @@ export default function CheckoutPage() {
     setOrderId(data.order.orderNumber);
     setDone(true);
     clear();
+
+    window.fbq?.("track", "Purchase", {
+      value: total,
+      currency: "DZD",
+      content_type: "product",
+      contents: items.map((i) => ({ id: i.slug, quantity: i.qty, item_price: i.price })),
+    }, { eventID: data.order.orderNumber });
   }
 
   if (done) {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { WILAYA_BY_NAME } from "@/lib/geo/wilayas-list";
 import { pushToRoles } from "@/lib/webpush";
 import { emailRoles } from "@/lib/email";
+import { sendPurchaseEvent } from "@/lib/meta";
 
 const schema = z.object({
   customerName: z.string().min(2),
@@ -233,6 +234,14 @@ export async function POST(req: NextRequest) {
        <strong>Total:</strong> ${orderTotal.toLocaleString("fr-FR")} DA</p>
        <p><a href="https://aurelia-amber.vercel.app/admin/orders/${order.id}">View order in admin panel</a></p>`
     ).catch(() => {});
+    await sendPurchaseEvent({
+      eventId: orderNumber,
+      orderNumber,
+      value: orderTotal,
+      phone: data.phone,
+      items: data.items,
+      req,
+    });
   });
 
   if (data.sessionId) {

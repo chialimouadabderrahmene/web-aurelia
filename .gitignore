@@ -11,3 +11,4 @@ lib/generated
 
 .vercel
 .env*
+*.tsbuildinfo
