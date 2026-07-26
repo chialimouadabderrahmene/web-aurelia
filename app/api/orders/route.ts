@@ -18,6 +18,7 @@ const schema = z.object({
   referralCode: z.string().optional(),
   affiliateCode: z.string().optional(),
   sessionId: z.string().optional(),
+  deliveryType: z.enum(["HOME", "STOPDESK"]).default("HOME"),
   items: z
     .array(
       z.object({
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
   const wilayaInfo = WILAYA_BY_NAME[data.wilaya];
   if (wilayaInfo) {
     const dp = await prisma.deliveryPrice.findUnique({ where: { wilayaCode: wilayaInfo.code } });
-    deliveryPrice = dp?.price ?? 0;
+    deliveryPrice = (data.deliveryType === "STOPDESK" ? dp?.stopdeskPrice : dp?.homePrice) ?? 0;
   }
 
   // --- Coupon ---
@@ -201,6 +202,7 @@ export async function POST(req: NextRequest) {
       giftCardCode,
       giftCardAmount,
       deliveryPrice,
+      deliveryType: data.deliveryType,
       referralCode: data.referralCode ?? null,
       affiliateCode,
       items: { create: itemsData },

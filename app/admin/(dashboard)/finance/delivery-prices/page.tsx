@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import FinanceTabs from "@/components/admin/FinanceTabs";
 
-type Price = { wilayaCode: string; wilayaName: string; price: number };
+type Price = { wilayaCode: string; wilayaName: string; homePrice: number; stopdeskPrice: number };
+type Draft = { homePrice?: number; stopdeskPrice?: number };
 
 export default function DeliveryPricesPage() {
   const [prices, setPrices] = useState<Price[]>([]);
-  const [drafts, setDrafts] = useState<Record<string, number>>({});
+  const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -18,10 +19,21 @@ export default function DeliveryPricesPage() {
       .then((d) => setPrices(d.prices ?? []));
   }, []);
 
+  function setDraft(wilayaCode: string, field: keyof Draft, value: number) {
+    setDrafts((d) => ({ ...d, [wilayaCode]: { ...d[wilayaCode], [field]: value } }));
+  }
+
   async function saveAll() {
     if (Object.keys(drafts).length === 0) return;
     setSaving(true);
-    const updates = Object.entries(drafts).map(([wilayaCode, price]) => ({ wilayaCode, price }));
+    const updates = Object.entries(drafts).map(([wilayaCode, draft]) => {
+      const current = prices.find((p) => p.wilayaCode === wilayaCode)!;
+      return {
+        wilayaCode,
+        homePrice: draft.homePrice ?? current.homePrice,
+        stopdeskPrice: draft.stopdeskPrice ?? current.stopdeskPrice,
+      };
+    });
     await fetch("/api/admin/delivery-prices", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -29,7 +41,9 @@ export default function DeliveryPricesPage() {
     });
     setSaving(false);
     setSaved(true);
-    setPrices((prev) => prev.map((p) => (p.wilayaCode in drafts ? { ...p, price: drafts[p.wilayaCode] } : p)));
+    setPrices((prev) =>
+      prev.map((p) => (p.wilayaCode in drafts ? { ...p, ...drafts[p.wilayaCode] } : p))
+    );
     setDrafts({});
     setTimeout(() => setSaved(false), 2000);
   }
@@ -40,7 +54,7 @@ export default function DeliveryPricesPage() {
         <div>
           <h1 className="font-display text-3xl text-ink">Delivery Prices</h1>
           <p className="mt-1 font-body text-sm text-ink/50">
-            Home delivery fee charged per wilaya, added on top of product price at checkout.
+            Home delivery and stop desk fees per wilaya, added on top of product price at checkout.
           </p>
         </div>
         <button
@@ -56,25 +70,38 @@ export default function DeliveryPricesPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {prices.map((p) => (
-          <div
-            key={p.wilayaCode}
-            className="flex items-center justify-between gap-3 rounded-xl2 bg-white p-4 shadow-soft"
-          >
-            <div>
+          <div key={p.wilayaCode} className="rounded-xl2 bg-white p-4 shadow-soft">
+            <div className="mb-3">
               <p className="font-body text-xs text-ink/40">{p.wilayaCode}</p>
               <p className="font-body text-sm text-ink">{p.wilayaName}</p>
             </div>
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                min={0}
-                defaultValue={p.price}
-                onChange={(e) =>
-                  setDrafts((d) => ({ ...d, [p.wilayaCode]: Number(e.target.value) }))
-                }
-                className="w-24 rounded-lg border border-line px-3 py-2 text-right font-body text-sm"
-              />
-              <span className="font-body text-xs text-ink/40">DA</span>
+            <div className="space-y-2">
+              <label className="flex items-center justify-between gap-2">
+                <span className="font-body text-xs text-ink/50">Home</span>
+                <span className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={0}
+                    defaultValue={p.homePrice}
+                    onChange={(e) => setDraft(p.wilayaCode, "homePrice", Number(e.target.value))}
+                    className="w-24 rounded-lg border border-line px-3 py-2 text-right font-body text-sm"
+                  />
+                  <span className="font-body text-xs text-ink/40">DA</span>
+                </span>
+              </label>
+              <label className="flex items-center justify-between gap-2">
+                <span className="font-body text-xs text-ink/50">Stop Desk</span>
+                <span className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={0}
+                    defaultValue={p.stopdeskPrice}
+                    onChange={(e) => setDraft(p.wilayaCode, "stopdeskPrice", Number(e.target.value))}
+                    className="w-24 rounded-lg border border-line px-3 py-2 text-right font-body text-sm"
+                  />
+                  <span className="font-body text-xs text-ink/40">DA</span>
+                </span>
+              </label>
             </div>
           </div>
         ))}

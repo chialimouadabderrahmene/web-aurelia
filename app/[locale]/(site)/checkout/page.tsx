@@ -10,7 +10,8 @@ import { useLocale } from "@/components/i18n/LocaleProvider";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import { getSessionId } from "@/lib/session";
 
-type DeliveryPrice = { wilayaCode: string; wilayaName: string; price: number };
+type DeliveryPrice = { wilayaCode: string; wilayaName: string; homePrice: number; stopdeskPrice: number };
+type DeliveryType = "HOME" | "STOPDESK";
 
 export default function CheckoutPage() {
   const { items, clear } = useCart();
@@ -23,9 +24,15 @@ export default function CheckoutPage() {
   const [contactPhone, setContactPhone] = useState("");
   const [deliveryPrices, setDeliveryPrices] = useState<DeliveryPrice[]>([]);
   const [selectedWilaya, setSelectedWilaya] = useState("");
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>("HOME");
   const [confirmMsg, setConfirmMsg] = useState<{ title: string; body: string } | null>(null);
   const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
-  const deliveryFee = deliveryPrices.find((d) => d.wilayaName === selectedWilaya)?.price ?? 0;
+  const selectedDelivery = deliveryPrices.find((d) => d.wilayaName === selectedWilaya);
+  const deliveryFee = selectedDelivery
+    ? deliveryType === "STOPDESK"
+      ? selectedDelivery.stopdeskPrice
+      : selectedDelivery.homePrice
+    : 0;
   const total = subtotal + deliveryFee;
   const { dict, locale } = useLocale();
 
@@ -80,6 +87,7 @@ export default function CheckoutPage() {
         couponCode: (form.get("couponCode") as string) || undefined,
         giftCardCode: (form.get("giftCardCode") as string) || undefined,
         referralCode: (form.get("referralCode") as string) || undefined,
+        deliveryType,
         sessionId: getSessionId(),
         items: items.map((i) => ({
           slug: i.slug,
@@ -189,6 +197,34 @@ export default function CheckoutPage() {
             </div>
             <Field label={dict.checkout.commune} name="commune" placeholder={dict.checkout.communePlaceholder} required />
           </div>
+
+          <div>
+            <label className="mb-2 block font-body text-xs uppercase tracking-wide text-ink/60">
+              {dict.checkout.deliveryType}
+            </label>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {(["HOME", "STOPDESK"] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setDeliveryType(type)}
+                  className={`flex items-center justify-between rounded-xl2 border px-5 py-3.5 font-body text-sm transition-colors ${
+                    deliveryType === type
+                      ? "border-gold bg-gold/5 text-ink"
+                      : "border-line bg-cream text-ink/70 hover:border-ink/20"
+                  }`}
+                >
+                  <span>{type === "HOME" ? dict.checkout.homeDelivery : dict.checkout.stopdesk}</span>
+                  <span className="text-ink/50">
+                    {selectedDelivery
+                      ? formatDzd(type === "HOME" ? selectedDelivery.homePrice : selectedDelivery.stopdeskPrice)
+                      : "—"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <Field label={dict.checkout.address} name="address" placeholder={dict.checkout.addressPlaceholder} required />
 
           <div>
@@ -241,7 +277,13 @@ export default function CheckoutPage() {
               <span>{formatDzd(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>{dict.common.shipping}</span>
+              <span>
+                {dict.common.shipping}
+                <span className="text-ink/40">
+                  {" "}
+                  ({deliveryType === "HOME" ? dict.checkout.homeDelivery : dict.checkout.stopdesk})
+                </span>
+              </span>
               <span>{selectedWilaya ? formatDzd(deliveryFee) : "—"}</span>
             </div>
           </div>

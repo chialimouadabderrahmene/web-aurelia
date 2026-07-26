@@ -30,6 +30,7 @@ type OrderDetail = {
   discountAmount: number;
   giftCardAmount: number;
   deliveryPrice: number;
+  deliveryType: "HOME" | "STOPDESK";
   couponCode: string | null;
   statusNote: string | null;
   ecotrackTrackingId: string | null;
@@ -219,7 +220,9 @@ export default function AdminOrderDetailPage() {
               </div>
             )}
             <div className="flex justify-between">
-              <span>Delivery ({order.wilaya})</span>
+              <span>
+                Delivery ({order.wilaya} — {order.deliveryType === "STOPDESK" ? "Stop Desk" : "Home"})
+              </span>
               <span>{formatDzd(order.deliveryPrice)}</span>
             </div>
             <div className="flex justify-between pt-1.5 font-body text-base text-ink">

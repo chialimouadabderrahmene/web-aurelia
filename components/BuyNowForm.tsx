@@ -11,7 +11,8 @@ import { getSessionId } from "@/lib/session";
 
 const DZ_PHONE = /^0[5-7][0-9]{8}$/;
 
-type DeliveryPrice = { wilayaCode: string; wilayaName: string; price: number };
+type DeliveryPrice = { wilayaCode: string; wilayaName: string; homePrice: number; stopdeskPrice: number };
+type DeliveryType = "HOME" | "STOPDESK";
 
 export default function BuyNowForm({
   slug,
@@ -33,6 +34,7 @@ export default function BuyNowForm({
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [wilaya, setWilaya] = useState("");
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>("HOME");
   const [commune, setCommune] = useState("");
   const [address, setAddress] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -64,7 +66,12 @@ export default function BuyNowForm({
       });
   }, [locale]);
 
-  const deliveryFee = deliveryPrices.find((d) => d.wilayaName === wilaya)?.price ?? 0;
+  const selectedDelivery = deliveryPrices.find((d) => d.wilayaName === wilaya);
+  const deliveryFee = selectedDelivery
+    ? deliveryType === "STOPDESK"
+      ? selectedDelivery.stopdeskPrice
+      : selectedDelivery.homePrice
+    : 0;
   const total = unitPrice * qty + deliveryFee;
 
   async function onSubmit(e: React.FormEvent) {
@@ -87,6 +94,7 @@ export default function BuyNowForm({
         wilaya,
         commune,
         address: address || commune,
+        deliveryType,
         sessionId: getSessionId(),
         items: [{ slug, name: productName, color, colorHex, price: unitPrice, qty }],
       }),
@@ -168,6 +176,27 @@ export default function BuyNowForm({
             placeholder={dict.checkout.communePlaceholder}
             className="input"
           />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {(["HOME", "STOPDESK"] as const).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setDeliveryType(type)}
+              className={`flex items-center justify-between rounded-xl2 border px-4 py-3 font-body text-xs transition-colors ${
+                deliveryType === type
+                  ? "border-gold bg-gold/5 text-ink"
+                  : "border-line bg-cream text-ink/70 hover:border-ink/20"
+              }`}
+            >
+              <span>{type === "HOME" ? dict.checkout.homeDelivery : dict.checkout.stopdesk}</span>
+              <span className="text-ink/50">
+                {selectedDelivery
+                  ? formatDzd(type === "HOME" ? selectedDelivery.homePrice : selectedDelivery.stopdeskPrice)
+                  : "—"}
+              </span>
+            </button>
+          ))}
         </div>
         <input
           value={address}

@@ -12,7 +12,13 @@ export async function GET() {
 }
 
 const schema = z.object({
-  updates: z.array(z.object({ wilayaCode: z.string(), price: z.number().int().nonnegative() })),
+  updates: z.array(
+    z.object({
+      wilayaCode: z.string(),
+      homePrice: z.number().int().nonnegative(),
+      stopdeskPrice: z.number().int().nonnegative(),
+    })
+  ),
 });
 
 export async function PATCH(req: NextRequest) {
@@ -24,7 +30,10 @@ export async function PATCH(req: NextRequest) {
 
   await prisma.$transaction(
     parsed.data.updates.map((u) =>
-      prisma.deliveryPrice.update({ where: { wilayaCode: u.wilayaCode }, data: { price: u.price } })
+      prisma.deliveryPrice.update({
+        where: { wilayaCode: u.wilayaCode },
+        data: { homePrice: u.homePrice, stopdeskPrice: u.stopdeskPrice },
+      })
     )
   );
 

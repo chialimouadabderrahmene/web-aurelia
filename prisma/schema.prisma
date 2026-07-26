@@ -184,6 +184,7 @@ model Order {
   referralCode   String?
   affiliateCode  String?
   deliveryPrice  Int         @default(0)
+  deliveryType   DeliveryType @default(HOME)
   confirmedByUserId String?
   confirmedByUser   AdminUser? @relation("ConfirmedBy", fields: [confirmedByUserId], references: [id], onDelete: SetNull)
   commissionCredited Boolean  @default(false)
@@ -331,10 +332,16 @@ model Affiliate {
 }
 
 model DeliveryPrice {
-  id         String @id @default(cuid())
-  wilayaCode String @unique
-  wilayaName String
-  price      Int    @default(0)
+  id            String @id @default(cuid())
+  wilayaCode    String @unique
+  wilayaName    String
+  homePrice     Int    @default(0)
+  stopdeskPrice Int    @default(0)
+}
+
+enum DeliveryType {
+  HOME
+  STOPDESK
 }
 
 enum ExpenseCategory {

@@ -13,6 +13,7 @@ type OrderForEcotrack = {
   discountAmount: number;
   giftCardAmount: number;
   deliveryPrice: number;
+  deliveryType: "HOME" | "STOPDESK";
   statusNote: string | null;
   items: { nameEn: string; qty: number }[];
 };
@@ -91,7 +92,7 @@ export async function createEcotrackParcel(order: OrderForEcotrack): Promise<Eco
       montant: amountDue,
       remarque: order.statusNote ?? undefined,
       produit: productNames,
-      type: 1,
+      type: order.deliveryType === "STOPDESK" ? 2 : 1,
     });
 
     const obj = raw as { success?: boolean; tracking?: string } | null;

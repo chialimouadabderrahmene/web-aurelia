@@ -198,11 +198,12 @@ async function main() {
   const NEAR = ["16", "09", "35", "42"]; // Alger, Blida, Boumerdès, Tipaza
   const FAR_SOUTH = ["11", "37", "33", "50", "53", "54", "56", "08", "01"]; // Tamanrasset, Tindouf, Illizi, Bordj Badji Mokhtar, In Salah, In Guezzam, Djanet, Béchar, Adrar
   for (const w of WILAYAS) {
-    const price = NEAR.includes(w.code) ? 400 : FAR_SOUTH.includes(w.code) ? 900 : 600;
+    const homePrice = NEAR.includes(w.code) ? 400 : FAR_SOUTH.includes(w.code) ? 900 : 600;
+    const stopdeskPrice = Math.round(homePrice * 0.7);
     await prisma.deliveryPrice.upsert({
       where: { wilayaCode: w.code },
       update: {},
-      create: { wilayaCode: w.code, wilayaName: w.en, price },
+      create: { wilayaCode: w.code, wilayaName: w.en, homePrice, stopdeskPrice },
     });
   }
 
