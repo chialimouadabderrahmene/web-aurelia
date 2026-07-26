@@ -20,7 +20,7 @@ export default async function LocaleLayout({
   const dict = getDictionary(locale);
 
   return (
-    <div dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <LocaleProvider locale={locale} dict={dict}>
         {children}
       </LocaleProvider>

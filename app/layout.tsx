@@ -37,10 +37,24 @@ const bodyAr = Cairo({
   display: "swap",
 });
 
+const description =
+  "AURELIA is a premium handbag maison — minimal, elegant, timeless. Shop the collection with cash on delivery across Algeria.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://aurelia-amber.vercel.app"),
   title: "AURELIA — Quiet Luxury for Every Woman",
-  description:
-    "AURELIA is a premium handbag maison — minimal, elegant, timeless. Shop the collection with cash on delivery across Algeria.",
+  description,
+  openGraph: {
+    title: "AURELIA — Quiet Luxury for Every Woman",
+    description,
+    siteName: "AURELIA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AURELIA — Quiet Luxury for Every Woman",
+    description,
+  },
 };
 
 export default function RootLayout({

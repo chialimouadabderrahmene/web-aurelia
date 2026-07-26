@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/publicProducts";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { Locale, defaultLocale, isLocale } from "@/lib/i18n/config";
@@ -7,6 +8,36 @@ import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/Reveal";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; locale: string }>;
+}): Promise<Metadata> {
+  const { slug, locale: rawLocale } = await params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const product = await getProductBySlug(slug);
+  if (!product) return {};
+
+  const name = locale === "ar" ? product.nameAr : product.nameEn;
+  const description = (locale === "ar" ? product.descriptionAr : product.descriptionEn) ?? undefined;
+  const title = `${name} — AURELIA`;
+  const image = product.images[0]?.url;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${locale}/product/${slug}`,
+      languages: { en: `/en/product/${slug}`, ar: `/ar/product/${slug}` },
+    },
+    openGraph: {
+      title,
+      description,
+      images: image ? [{ url: image }] : undefined,
+    },
+  };
+}
 
 export default async function ProductPage({
   params,

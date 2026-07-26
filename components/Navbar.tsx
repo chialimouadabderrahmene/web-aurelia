@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Search, Heart, ShoppingBag } from "lucide-react";
 import { useCart, useWishlist } from "@/lib/store";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
-import SearchOverlay from "@/components/SearchOverlay";
+
+const SearchOverlay = dynamic(() => import("@/components/SearchOverlay"), { ssr: false });
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
