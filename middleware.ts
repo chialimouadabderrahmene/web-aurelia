@@ -5,7 +5,7 @@ import { locales, defaultLocale } from "@/lib/i18n/config";
 const COOKIE_NAME = "aurelia_admin_session";
 
 const areaByRole: Record<string, string[]> = {
-  OWNER: ["products", "orders", "stock", "users", "finance", "customers", "marketing", "earnings", "integrations", "purchasing", "audit", "reports", "content"],
+  OWNER: ["products", "orders", "stock", "users", "finance", "customers", "marketing", "earnings", "integrations", "purchasing", "audit", "reports", "content", "live"],
   CONFIRMATION_AGENT: ["orders", "customers", "earnings"],
   STOCK_MANAGER: ["products", "stock", "purchasing"],
   FINANCE_MANAGER: ["finance", "earnings", "reports"],
@@ -25,6 +25,7 @@ function sectionFor(pathname: string): string | null {
   if (pathname.startsWith("/admin/audit-log")) return "audit";
   if (pathname.startsWith("/admin/reports")) return "reports";
   if (pathname.startsWith("/admin/content")) return "content";
+  if (pathname.startsWith("/admin/live-view")) return "live";
   return null;
 }
 

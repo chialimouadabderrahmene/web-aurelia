@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import CartDrawerLazy from "@/components/CartDrawerLazy";
 import CartTracker from "@/components/CartTracker";
 import MetaPixel from "@/components/MetaPixel";
+import VisitorTracker from "@/components/VisitorTracker";
 import { Locale, defaultLocale, isLocale } from "@/lib/i18n/config";
 
 export default async function SiteLayout({
@@ -25,6 +26,7 @@ export default async function SiteLayout({
       <BottomNav />
       <CartDrawerLazy />
       <CartTracker />
+      <VisitorTracker />
     </>
   );
 }

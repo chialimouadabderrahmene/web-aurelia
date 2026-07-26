@@ -70,7 +70,7 @@ export async function getSession(): Promise<SessionPayload | null> {
 export const SESSION_COOKIE_NAME = COOKIE_NAME;
 
 export const rolePermissions: Record<AdminRole, string[]> = {
-  OWNER: ["products", "orders", "stock", "users", "finance", "customers", "marketing", "earnings", "integrations", "purchasing", "audit", "reports", "content"],
+  OWNER: ["products", "orders", "stock", "users", "finance", "customers", "marketing", "earnings", "integrations", "purchasing", "audit", "reports", "content", "live"],
   CONFIRMATION_AGENT: ["orders", "customers", "earnings"],
   STOCK_MANAGER: ["products", "stock", "purchasing"],
   FINANCE_MANAGER: ["finance", "earnings", "reports"],

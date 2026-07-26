@@ -339,6 +339,16 @@ model DeliveryPrice {
   stopdeskPrice Int    @default(0)
 }
 
+model PageView {
+  id        String   @id @default(cuid())
+  sessionId String
+  path      String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([sessionId])
+}
+
 enum DeliveryType {
   HOME
   STOPDESK

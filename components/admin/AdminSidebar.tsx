@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingBag, Package, Boxes, Users, Contact, Megaphone, Wallet, HandCoins, Plug, Truck, FileBarChart, ShieldCheck, FileText } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, Boxes, Users, Contact, Megaphone, Wallet, HandCoins, Plug, Truck, FileBarChart, ShieldCheck, FileText, Radio } from "lucide-react";
 import { SessionPayload } from "@/lib/auth";
 
 const icons: Record<string, typeof LayoutDashboard> = {
   "/admin": LayoutDashboard,
+  "/admin/live-view": Radio,
   "/admin/orders": ShoppingBag,
   "/admin/customers": Contact,
   "/admin/products": Package,
