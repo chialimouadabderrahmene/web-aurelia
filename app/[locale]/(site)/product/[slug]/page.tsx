@@ -1,11 +1,19 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProductBySlug, getRelatedProducts } from "@/lib/publicProducts";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getProductReviews,
+  getRecentOrdersForProduct,
+} from "@/lib/publicProducts";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import { Locale, defaultLocale, isLocale } from "@/lib/i18n/config";
 import ProductView from "@/components/ProductView";
 import ProductCard from "@/components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
+import RecentOrdersStrip from "@/components/RecentOrdersStrip";
 import Reveal from "@/components/Reveal";
+import { SITE_URL } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -50,11 +58,69 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = await getRelatedProducts(slug);
+  const [related, reviews, recentOrders] = await Promise.all([
+    getRelatedProducts(slug),
+    getProductReviews(product.nameEn, product.nameAr),
+    getRecentOrdersForProduct(product.id),
+  ]);
+
+  const name = locale === "ar" ? product.nameAr : product.nameEn;
+  const description = locale === "ar" ? product.descriptionAr : product.descriptionEn;
+  const unitPrice = product.effectivePrice ?? product.price;
+  const avgRating =
+    reviews.length > 0 ? reviews.reduce((n, r) => n + r.rating, 0) / reviews.length : null;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    description,
+    image: product.images.map((i) => i.url),
+    sku: product.sku,
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/${locale}/product/${slug}`,
+      priceCurrency: "DZD",
+      price: unitPrice,
+      availability:
+        product.stockQty > 0 ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+    },
+    ...(avgRating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: avgRating.toFixed(1),
+            reviewCount: reviews.length,
+          },
+        }
+      : {}),
+  };
 
   return (
-    <div className="pb-16">
+    <div className="pb-32 md:pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <ProductView product={product} />
+
+      <div className="container-aurelia">
+        <ProductReviews
+          reviews={reviews.map((r) => ({
+            authorName: r.authorName,
+            rating: r.rating,
+            text: r.text,
+            product: r.product,
+          }))}
+          heading={dict.product.reviewsHeading}
+        />
+        <RecentOrdersStrip
+          orders={recentOrders}
+          heading={dict.product.recentOrdersHeading}
+          orderedFrom={dict.product.orderedFrom}
+          locale={locale}
+        />
+      </div>
 
       {related.length > 0 && (
         <section className="container-aurelia py-20">

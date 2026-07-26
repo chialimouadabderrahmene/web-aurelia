@@ -1,3 +1,5 @@
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://neao.online";
+
 export function formatDzd(amount: number): string {
   return `${amount.toLocaleString("fr-FR")} DA`;
 }

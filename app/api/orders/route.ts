@@ -6,6 +6,7 @@ import { WILAYA_BY_NAME } from "@/lib/geo/wilayas-list";
 import { pushToRoles } from "@/lib/webpush";
 import { emailRoles } from "@/lib/email";
 import { sendPurchaseEvent } from "@/lib/meta";
+import { SITE_URL } from "@/lib/utils";
 
 const schema = z.object({
   customerName: z.string().min(2),
@@ -234,13 +235,17 @@ export async function POST(req: NextRequest) {
        <strong>Customer:</strong> ${data.customerName} — ${data.phone}<br/>
        <strong>Wilaya:</strong> ${data.wilaya}, ${data.commune}<br/>
        <strong>Total:</strong> ${orderTotal.toLocaleString("fr-FR")} DA</p>
-       <p><a href="https://aurelia-amber.vercel.app/admin/orders/${order.id}">View order in admin panel</a></p>`
+       <p><a href="${SITE_URL}/admin/orders/${order.id}">View order in admin panel</a></p>`
     ).catch(() => {});
     await sendPurchaseEvent({
       eventId: orderNumber,
       orderNumber,
       value: orderTotal,
       phone: data.phone,
+      customerName: data.customerName,
+      customerId: customer.id,
+      wilaya: data.wilaya,
+      commune: data.commune,
       items: data.items,
       req,
     });

@@ -100,13 +100,20 @@
     "trustCod": "Cash on Delivery",
     "trustReturns": "7-day easy returns",
     "relatedEyebrow": "You may also like",
-    "relatedTitle": "Complete the look"
+    "relatedTitle": "Complete the look",
+    "shippingTab": "Shipping & Returns",
+    "reviewsHeading": "What customers say",
+    "recentOrdersHeading": "Recent orders",
+    "orderedFrom": "ordered from"
   },
   "buyNow": {
     "title": "Buy Now — Fast Checkout",
     "subtitle": "Order directly, no account needed. Pay cash on delivery.",
     "submit": "Confirm Order",
     "phoneInvalid": "Enter a valid Algerian phone number (e.g. 0551234567)"
+  },
+  "stickyBar": {
+    "cta": "Order Now"
   },
   "cart": {
     "title": "Your Bag",
@@ -135,6 +142,7 @@
     "deliveryType": "Delivery Method",
     "homeDelivery": "Home Delivery",
     "stopdesk": "Stop Desk (pickup point)",
+    "stopdeskNote": "We'll call you to confirm the nearest Stop Desk pickup point in your commune.",
     "paymentMethod": "Payment method:",
     "cod": "Cash on Delivery",
     "confirmOrder": "Confirm Order",

@@ -119,3 +119,32 @@ export async function getRelatedProducts(slug: string, count = 3) {
 }
 
 export type PublicProduct = Awaited<ReturnType<typeof getProductBySlug>>;
+
+export async function getProductReviews(nameEn: string, nameAr: string, count = 6) {
+  const specific = await prisma.review.findMany({
+    where: { isActive: true, OR: [{ product: nameEn }, { product: nameAr }] },
+    orderBy: { sortOrder: "asc" },
+    take: count,
+  });
+  if (specific.length > 0) return specific;
+
+  return prisma.review.findMany({
+    where: { isActive: true, product: null },
+    orderBy: { sortOrder: "asc" },
+    take: 3,
+  });
+}
+
+export async function getRecentOrdersForProduct(productId: string, count = 6) {
+  const orders = await prisma.order.findMany({
+    where: { items: { some: { productId } } },
+    orderBy: { createdAt: "desc" },
+    take: count,
+    select: { customerName: true, wilaya: true, createdAt: true },
+  });
+  return orders.map((o) => ({
+    firstName: o.customerName.trim().split(/\s+/)[0],
+    wilaya: o.wilaya,
+    createdAt: o.createdAt,
+  }));
+}

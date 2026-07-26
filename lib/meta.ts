@@ -17,11 +17,26 @@ type PurchasePayload = {
   orderNumber: string;
   value: number;
   phone: string;
+  customerName: string;
+  customerId: string;
+  wilaya: string;
+  commune: string;
   items: { slug: string; name: string; qty: number; price: number }[];
   req: NextRequest;
 };
 
-export async function sendPurchaseEvent({ eventId, orderNumber, value, phone, items, req }: PurchasePayload) {
+export async function sendPurchaseEvent({
+  eventId,
+  orderNumber,
+  value,
+  phone,
+  customerName,
+  customerId,
+  wilaya,
+  commune,
+  items,
+  req,
+}: PurchasePayload) {
   const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
   if (!META_PIXEL_ID || !accessToken) return;
 
@@ -30,6 +45,8 @@ export async function sendPurchaseEvent({ eventId, orderNumber, value, phone, it
   const fbc = cookieHeader.match(/_fbc=([^;]+)/)?.[1];
   const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   const userAgent = req.headers.get("user-agent") ?? undefined;
+  const [firstName, ...lastNameParts] = customerName.trim().split(/\s+/);
+  const lastName = lastNameParts.join(" ");
 
   const body = {
     data: [
@@ -41,6 +58,12 @@ export async function sendPurchaseEvent({ eventId, orderNumber, value, phone, it
         event_source_url: req.headers.get("referer") ?? undefined,
         user_data: {
           ph: [sha256(normalizePhone(phone))],
+          fn: firstName ? [sha256(firstName)] : undefined,
+          ln: lastName ? [sha256(lastName)] : undefined,
+          ct: [sha256(commune)],
+          st: [sha256(wilaya)],
+          country: [sha256("dz")],
+          external_id: [sha256(customerId)],
           client_ip_address: clientIp,
           client_user_agent: userAgent,
           fbp,
@@ -50,8 +73,11 @@ export async function sendPurchaseEvent({ eventId, orderNumber, value, phone, it
           currency: "DZD",
           value,
           order_id: orderNumber,
-          contents: items.map((i) => ({ id: i.slug, quantity: i.qty, item_price: i.price })),
           content_type: "product",
+          content_ids: items.map((i) => i.slug),
+          content_name: items.map((i) => i.name).join(", "),
+          contents: items.map((i) => ({ id: i.slug, quantity: i.qty, item_price: i.price })),
+          num_items: items.reduce((n, i) => n + i.qty, 0),
         },
       },
     ],

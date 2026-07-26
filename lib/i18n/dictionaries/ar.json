@@ -100,13 +100,20 @@
     "trustCod": "الدفع عند الاستلام",
     "trustReturns": "إرجاع سهل خلال 7 أيام",
     "relatedEyebrow": "قد يعجبك أيضًا",
-    "relatedTitle": "أكملي إطلالتك"
+    "relatedTitle": "أكملي إطلالتك",
+    "shippingTab": "الشحن والإرجاع",
+    "reviewsHeading": "ماذا يقول عملاؤنا",
+    "recentOrdersHeading": "طلبات حديثة",
+    "orderedFrom": "طلبت من"
   },
   "buyNow": {
     "title": "اطلبي الآن — دفع سريع",
     "subtitle": "اطلبي مباشرة، بدون حساب. الدفع نقدًا عند الاستلام.",
     "submit": "تأكيد الطلب",
     "phoneInvalid": "أدخلي رقم هاتف جزائري صحيح (مثال: 0551234567)"
+  },
+  "stickyBar": {
+    "cta": "اطلبي الآن"
   },
   "cart": {
     "title": "سلتك",
@@ -135,6 +142,7 @@
     "deliveryType": "طريقة التوصيل",
     "homeDelivery": "التوصيل للمنزل",
     "stopdesk": "نقطة استلام (ستوب ديسك)",
+    "stopdeskNote": "سنتصل بك لتأكيد أقرب نقطة استلام (ستوب ديسك) في بلديتك.",
     "paymentMethod": "طريقة الدفع:",
     "cod": "الدفع عند الاستلام",
     "confirmOrder": "تأكيد الطلب",

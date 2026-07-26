@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 
@@ -14,9 +14,17 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export default function MetaPixel() {
   const pathname = usePathname();
+  const isFirstRun = useRef(true);
 
   useEffect(() => {
-    if (PIXEL_ID) window.fbq?.("track", "PageView");
+    if (!PIXEL_ID) return;
+    // The init script below already fires the initial PageView. Only fire
+    // again on subsequent SPA route changes, or every load double-counts.
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    window.fbq?.("track", "PageView");
   }, [pathname]);
 
   if (!PIXEL_ID) return null;

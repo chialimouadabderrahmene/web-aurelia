@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Heart, Minus, Plus, Truck, ShieldCheck, RotateCcw, MapPin } from "lucide-react";
+import { Heart, Minus, Plus } from "lucide-react";
 import { formatDzd } from "@/lib/utils";
 import { useWishlist } from "@/lib/store";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import BagIllustration from "./BagIllustration";
 import TiltCard from "./TiltCard";
 import BuyNowForm from "./BuyNowForm";
+import StickyBuyBar from "./StickyBuyBar";
+import { fireViewContent } from "@/lib/pixel";
 
 const variantByCategory: Record<string, "tote" | "shoulder" | "clutch" | "crossbody"> = {
   TOTE: "tote",
@@ -67,6 +69,7 @@ export default function ProductView({ product }: { product: ViewProduct }) {
     dict.product.materialsTab,
     dict.product.dimensionsTab,
     dict.product.careTab,
+    dict.product.shippingTab,
   ] as const;
   const [tab, setTab] = useState<string>(tabs[0]);
   const saved = useWishlist((s) => s.has(product.slug));
@@ -81,11 +84,21 @@ export default function ProductView({ product }: { product: ViewProduct }) {
   const name = isAr ? product.nameAr : product.nameEn;
   const colorName = color ? (isAr ? color.nameAr : color.nameEn) : "";
 
+  useEffect(() => {
+    fireViewContent({ slug: product.slug, name, price: unitPrice });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.slug]);
+
   const tabContent: Record<string, string> = {
     [dict.product.descriptionTab]: isAr ? product.descriptionAr : product.descriptionEn,
     [dict.product.materialsTab]: isAr ? product.materialsAr : product.materialsEn,
     [dict.product.dimensionsTab]: product.dimensions,
     [dict.product.careTab]: isAr ? product.careAr : product.careEn,
+    [dict.product.shippingTab]: [
+      trust?.delivery ?? dict.product.trustDelivery,
+      trust?.cod ?? dict.product.trustCod,
+      trust?.returns ?? dict.product.trustReturns,
+    ].join(" — "),
   };
 
   return (
@@ -133,17 +146,12 @@ export default function ProductView({ product }: { product: ViewProduct }) {
           <p className="eyebrow">{dict.categories[product.category as keyof typeof dict.categories]}</p>
           <h1 className="mt-2 font-display text-4xl text-ink md:text-5xl">{name}</h1>
 
-          <div className="mt-3 flex items-center gap-1.5 font-body text-xs text-ink/50">
-            <MapPin size={13} strokeWidth={1.5} />
-            {dict.product.origin} {product.originCountry}
-          </div>
-
           <div className="mt-4 flex items-center gap-3">
-            <span className={`font-body text-xl ${onSale ? "text-red-600" : "text-ink"}`}>
+            <span className={`font-display text-3xl md:text-4xl ${onSale ? "text-red-600" : "text-ink"}`}>
               {formatDzd(unitPrice)}
             </span>
             {(onSale || product.compareAtPrice) && (
-              <span className="font-body text-sm text-ink/40 line-through">
+              <span className="font-body text-base text-ink/40 line-through">
                 {formatDzd(onSale ? product.price : product.compareAtPrice!)}
               </span>
             )}
@@ -153,10 +161,6 @@ export default function ProductView({ product }: { product: ViewProduct }) {
               </span>
             )}
           </div>
-          <p className="mt-1 font-body text-xs text-ink/50">
-            {isAr ? "أو" : "or"} 3x {formatDzd(Math.round(unitPrice / 3))} — {dict.product.installments}
-          </p>
-
           {preorder && (
             <p className="mt-3 inline-flex items-center rounded-full bg-amber-50 px-4 py-1.5 font-body text-xs text-amber-700">
               {dict.product.preorderNote}
@@ -221,15 +225,8 @@ export default function ProductView({ product }: { product: ViewProduct }) {
             </button>
           </div>
 
-          {/* Trust badges */}
-          <div className="mt-9 grid grid-cols-1 gap-3 rounded-xl2 bg-sand p-5 sm:grid-cols-3">
-            <TrustItem icon={Truck} label={trust?.delivery ?? dict.product.trustDelivery} />
-            <TrustItem icon={ShieldCheck} label={trust?.cod ?? dict.product.trustCod} />
-            <TrustItem icon={RotateCcw} label={trust?.returns ?? dict.product.trustReturns} />
-          </div>
-
           {/* Buy Now — direct checkout */}
-          <div className="mt-9">
+          <div id="buy-now-form" className="mt-9 scroll-mt-24">
             <BuyNowForm
               slug={product.slug}
               productName={product.nameEn}
@@ -268,21 +265,7 @@ export default function ProductView({ product }: { product: ViewProduct }) {
         </div>
       </div>
 
-    </div>
-  );
-}
-
-function TrustItem({
-  icon: Icon,
-  label,
-}: {
-  icon: typeof Truck;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <Icon size={16} strokeWidth={1.5} className="shrink-0 text-gold" />
-      <span className="font-body text-xs text-ink/70">{label}</span>
+      <StickyBuyBar price={unitPrice} targetId="buy-now-form" />
     </div>
   );
 }

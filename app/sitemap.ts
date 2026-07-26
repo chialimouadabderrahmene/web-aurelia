@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { locales } from "@/lib/i18n/config";
+import { SITE_URL } from "@/lib/utils";
 
 const STATIC_PATHS = ["", "/collection", "/about", "/contact", "/faq", "/reviews", "/track"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aurelia-amber.vercel.app";
+  const siteUrl = SITE_URL;
 
   const products = await prisma.product.findMany({
     where: { isPublished: true },

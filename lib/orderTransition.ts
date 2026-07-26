@@ -5,6 +5,7 @@ import { createEcotrackParcel, deleteEcotrackParcel } from "@/lib/ecotrack";
 import { logStockMovement } from "@/lib/stockMovement";
 import { pushToUserIds, pushToRoles } from "@/lib/webpush";
 import { emailUserIds, emailRoles } from "@/lib/email";
+import { SITE_URL } from "@/lib/utils";
 
 export const TERMINAL = new Set(["DELIVERED", "CANCELLED"]);
 export const STOCK_COMMITTED = new Set(["CONFIRMED", "POSTPONED", "DELIVERED"]);
@@ -121,7 +122,7 @@ export async function applyOrderStatusChange(
       const emailBody = `<p>${label} on AURELIA.</p>
         <p><strong>Order:</strong> #${order.orderNumber}<br/>
         <strong>Customer:</strong> ${order.customerName}${opts.note ? `<br/><strong>Note:</strong> ${opts.note}` : ""}</p>
-        <p><a href="https://aurelia-amber.vercel.app/admin/orders/${orderId}">View order in admin panel</a></p>`;
+        <p><a href="${SITE_URL}/admin/orders/${orderId}">View order in admin panel</a></p>`;
       await emailUserIds(agentIds, `${label} — #${order.orderNumber}`, emailBody).catch(() => {});
       await emailRoles(["OWNER"], `${label} — #${order.orderNumber}`, emailBody).catch(() => {});
     });

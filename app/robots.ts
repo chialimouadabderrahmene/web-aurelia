@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/utils";
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aurelia-amber.vercel.app";
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow: ["/admin", "/api"] },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

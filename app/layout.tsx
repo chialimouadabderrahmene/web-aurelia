@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, Markazi_Text, Cairo, Plus_Jakarta_Sans } from "next/font/google";
+import { SITE_URL } from "@/lib/utils";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
@@ -41,7 +42,7 @@ const description =
   "AURELIA is a premium handbag maison — minimal, elegant, timeless. Shop the collection with cash on delivery across Algeria.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://aurelia-amber.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   title: "AURELIA — Quiet Luxury for Every Woman",
   description,
   openGraph: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDzd } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { wilayas } from "@/lib/wilayas";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import { getSessionId } from "@/lib/session";
+import { fireInitiateCheckout, firePurchase } from "@/lib/pixel";
 
 const DZ_PHONE = /^0[5-7][0-9]{8}$/;
 
@@ -44,6 +45,8 @@ export default function BuyNowForm({
   const [orderNumber, setOrderNumber] = useState("");
   const [confirmMsg, setConfirmMsg] = useState<{ title: string; body: string } | null>(null);
   const [header, setHeader] = useState<{ title: string; subtitle: string } | null>(null);
+  const hasFiredInitiateCheckout = useRef(false);
+  const hasSubmitted = useRef(false);
 
   useEffect(() => {
     fetch("/api/public/delivery-prices")
@@ -74,6 +77,12 @@ export default function BuyNowForm({
     : 0;
   const total = unitPrice * qty + deliveryFee;
 
+  function triggerInitiateCheckout() {
+    if (hasFiredInitiateCheckout.current) return;
+    hasFiredInitiateCheckout.current = true;
+    fireInitiateCheckout({ items: [{ slug, name: productName, qty, price: unitPrice }], value: total });
+  }
+
   useEffect(() => {
     if (phone.length < 8 || done) return;
     const t = setTimeout(() => {
@@ -94,6 +103,7 @@ export default function BuyNowForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (hasSubmitted.current) return;
     setError("");
 
     if (!DZ_PHONE.test(phone)) {
@@ -101,6 +111,7 @@ export default function BuyNowForm({
       return;
     }
     setPhoneError("");
+    hasSubmitted.current = true;
     setSubmitting(true);
 
     const res = await fetch("/api/orders", {
@@ -119,6 +130,7 @@ export default function BuyNowForm({
     });
     setSubmitting(false);
     if (!res.ok) {
+      hasSubmitted.current = false;
       const data = await res.json().catch(() => ({}));
       setError(typeof data.error === "string" ? data.error : dict.checkout.error);
       return;
@@ -126,6 +138,13 @@ export default function BuyNowForm({
     const data = await res.json();
     setOrderNumber(data.order.orderNumber);
     setDone(true);
+
+    firePurchase({
+      eventId: data.order.orderNumber,
+      value: total,
+      items: [{ slug, name: productName, qty, price: unitPrice }],
+      customer: { phone, firstName: fullName.split(/\s+/)[0], commune, wilaya },
+    });
   }
 
   if (done) {
@@ -156,20 +175,23 @@ export default function BuyNowForm({
           required
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
+          onFocus={triggerInitiateCheckout}
           placeholder={dict.checkout.fullNamePlaceholder}
-          className="input"
+          className="input !py-3.5 !text-base"
         />
         <div>
           <input
             required
             type="tel"
+            inputMode="tel"
             value={phone}
             onChange={(e) => {
               setPhone(e.target.value);
               if (phoneError) setPhoneError("");
             }}
+            onFocus={triggerInitiateCheckout}
             placeholder={dict.checkout.phonePlaceholder}
-            className="input"
+            className="input !py-3.5 !text-base"
           />
           {phoneError && <p className="mt-1 font-body text-xs text-red-600">{phoneError}</p>}
         </div>
@@ -178,7 +200,7 @@ export default function BuyNowForm({
             required
             value={wilaya}
             onChange={(e) => setWilaya(e.target.value)}
-            className="input"
+            className="input !py-3.5 !text-base"
           >
             <option value="">{dict.checkout.selectWilaya}</option>
             {wilayas.map((w) => (
@@ -192,7 +214,7 @@ export default function BuyNowForm({
             value={commune}
             onChange={(e) => setCommune(e.target.value)}
             placeholder={dict.checkout.communePlaceholder}
-            className="input"
+            className="input !py-3.5 !text-base"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -201,7 +223,7 @@ export default function BuyNowForm({
               key={type}
               type="button"
               onClick={() => setDeliveryType(type)}
-              className={`flex items-center justify-between rounded-xl2 border px-4 py-3 font-body text-xs transition-colors ${
+              className={`flex min-h-[52px] items-center justify-between rounded-xl2 border px-4 py-3 font-body text-xs transition-colors ${
                 deliveryType === type
                   ? "border-gold bg-gold/5 text-ink"
                   : "border-line bg-cream text-ink/70 hover:border-ink/20"
@@ -216,12 +238,19 @@ export default function BuyNowForm({
             </button>
           ))}
         </div>
-        <input
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder={dict.checkout.addressPlaceholder}
-          className="input"
-        />
+        {deliveryType === "HOME" ? (
+          <input
+            required
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder={dict.checkout.addressPlaceholder}
+            className="input !py-3.5 !text-base"
+          />
+        ) : (
+          <p className="rounded-xl2 bg-gold/5 px-4 py-3 font-body text-xs text-ink/60">
+            {dict.checkout.stopdeskNote}
+          </p>
+        )}
       </div>
 
       <div className="mt-4 space-y-1 border-t border-ink/10 pt-4 font-body text-sm text-ink/70">

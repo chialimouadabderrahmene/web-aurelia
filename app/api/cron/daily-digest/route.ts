@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { emailRoles } from "@/lib/email";
-import { formatDzd } from "@/lib/utils";
+import { formatDzd, SITE_URL } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       <li><strong>${lowStock}</strong> products low on stock (≤3 units)</li>
       <li>Cash on hand: <strong>${formatDzd(settings.cashBalance)}</strong></li>
     </ul>
-    <p><a href="https://aurelia-amber.vercel.app/admin">Open admin panel</a></p>
+    <p><a href="${SITE_URL}/admin">Open admin panel</a></p>
   `;
 
   await emailRoles(["OWNER"], `AURELIA Daily Digest — ${dateLabel}`, html);

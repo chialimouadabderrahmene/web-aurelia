@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { useCart } from "@/lib/store";
@@ -9,6 +9,7 @@ import { wilayas } from "@/lib/wilayas";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import { getSessionId } from "@/lib/session";
+import { fireInitiateCheckout, firePurchase } from "@/lib/pixel";
 
 type DeliveryPrice = { wilayaCode: string; wilayaName: string; homePrice: number; stopdeskPrice: number };
 type DeliveryType = "HOME" | "STOPDESK";
@@ -35,6 +36,17 @@ export default function CheckoutPage() {
     : 0;
   const total = subtotal + deliveryFee;
   const { dict, locale } = useLocale();
+  const hasFiredInitiateCheckout = useRef(false);
+  const hasSubmitted = useRef(false);
+
+  useEffect(() => {
+    if (items.length === 0 || hasFiredInitiateCheckout.current) return;
+    hasFiredInitiateCheckout.current = true;
+    fireInitiateCheckout({
+      items: items.map((i) => ({ slug: i.slug, name: i.name, qty: i.qty, price: i.price })),
+      value: subtotal,
+    });
+  }, [items, subtotal]);
 
   useEffect(() => {
     fetch("/api/public/delivery-prices")
@@ -72,8 +84,10 @@ export default function CheckoutPage() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (hasSubmitted.current) return;
     setError("");
     const form = new FormData(e.currentTarget);
+    hasSubmitted.current = true;
     setSubmitting(true);
     const res = await fetch("/api/orders", {
       method: "POST",
@@ -83,7 +97,7 @@ export default function CheckoutPage() {
         phone: form.get("phone"),
         wilaya: form.get("wilaya"),
         commune: form.get("commune"),
-        address: form.get("address"),
+        address: (form.get("address") as string) || (form.get("commune") as string),
         couponCode: (form.get("couponCode") as string) || undefined,
         giftCardCode: (form.get("giftCardCode") as string) || undefined,
         referralCode: (form.get("referralCode") as string) || undefined,
@@ -101,6 +115,7 @@ export default function CheckoutPage() {
     });
     setSubmitting(false);
     if (!res.ok) {
+      hasSubmitted.current = false;
       setError(dict.checkout.error);
       return;
     }
@@ -109,12 +124,17 @@ export default function CheckoutPage() {
     setDone(true);
     clear();
 
-    window.fbq?.("track", "Purchase", {
+    firePurchase({
+      eventId: data.order.orderNumber,
       value: total,
-      currency: "DZD",
-      content_type: "product",
-      contents: items.map((i) => ({ id: i.slug, quantity: i.qty, item_price: i.price })),
-    }, { eventID: data.order.orderNumber });
+      items: items.map((i) => ({ slug: i.slug, name: i.name, qty: i.qty, price: i.price })),
+      customer: {
+        phone: contactPhone,
+        firstName: contactName.split(/\s+/)[0],
+        commune: (form.get("commune") as string) ?? "",
+        wilaya: selectedWilaya,
+      },
+    });
   }
 
   if (done) {
@@ -154,12 +174,12 @@ export default function CheckoutPage() {
   }
 
   return (
-    <section className="container-aurelia py-14 md:py-20">
+    <section className="container-aurelia py-14 pb-32 md:py-20 md:pb-20">
       <h1 className="font-display text-4xl text-ink md:text-5xl">{dict.checkout.title}</h1>
       <p className="mt-2 font-body text-sm text-ink/50">{dict.checkout.subtitle}</p>
 
       <div className="mt-10 grid grid-cols-1 gap-12 md:grid-cols-3">
-        <form onSubmit={onSubmit} className="space-y-5 md:col-span-2">
+        <form id="checkout-form" onSubmit={onSubmit} className="space-y-5 md:col-span-2">
           <Field
             label={dict.checkout.fullName}
             name="name"
@@ -225,7 +245,13 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <Field label={dict.checkout.address} name="address" placeholder={dict.checkout.addressPlaceholder} required />
+          {deliveryType === "HOME" ? (
+            <Field label={dict.checkout.address} name="address" placeholder={dict.checkout.addressPlaceholder} required />
+          ) : (
+            <p className="rounded-xl2 bg-gold/5 px-4 py-3 font-body text-xs text-ink/60">
+              {dict.checkout.stopdeskNote}
+            </p>
+          )}
 
           <div>
             <button
@@ -250,7 +276,11 @@ export default function CheckoutPage() {
 
           {error && <p className="font-body text-sm text-red-600">{error}</p>}
 
-          <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-primary hidden w-full disabled:opacity-50 md:block"
+          >
             {submitting ? dict.checkout.placingOrder : `${dict.checkout.confirmOrder} — ${formatDzd(total)}`}
           </button>
         </form>
@@ -292,6 +322,23 @@ export default function CheckoutPage() {
             <span>{formatDzd(total)}</span>
           </div>
         </div>
+      </div>
+
+      <div
+        className="fixed inset-x-0 z-40 border-t border-line bg-white/95 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur-xl md:hidden"
+        style={{ bottom: "calc(4rem + env(safe-area-inset-bottom))" }}
+      >
+        <button
+          type="submit"
+          form="checkout-form"
+          disabled={submitting}
+          className="flex w-full items-center justify-between rounded-xl3 bg-ink px-6 py-4 text-white transition-transform active:scale-[0.98] disabled:opacity-50"
+        >
+          <span className="font-body text-[15px] font-medium">
+            {submitting ? dict.checkout.placingOrder : dict.checkout.confirmOrder}
+          </span>
+          <span className="font-display text-lg">{formatDzd(total)}</span>
+        </button>
       </div>
     </section>
   );
