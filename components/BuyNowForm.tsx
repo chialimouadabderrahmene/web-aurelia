@@ -74,6 +74,24 @@ export default function BuyNowForm({
     : 0;
   const total = unitPrice * qty + deliveryFee;
 
+  useEffect(() => {
+    if (phone.length < 8 || done) return;
+    const t = setTimeout(() => {
+      fetch("/api/cart/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: getSessionId(),
+          phone,
+          name: fullName || undefined,
+          items: [{ name: productName, qty, price: unitPrice }],
+          totalAmount: total,
+        }),
+      }).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [phone, fullName, productName, qty, unitPrice, total, done]);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");

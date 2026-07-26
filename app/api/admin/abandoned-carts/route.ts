@@ -9,7 +9,6 @@ export async function GET() {
   const carts = await prisma.abandonedCart.findMany({
     where: { recoveredOrderId: null },
     orderBy: { lastSeenAt: "desc" },
-    take: 100,
   });
 
   const rows = carts.map((c) => ({

@@ -92,7 +92,8 @@ export async function createEcotrackParcel(order: OrderForEcotrack): Promise<Eco
       montant: amountDue,
       remarque: order.statusNote ?? undefined,
       produit: productNames,
-      type: order.deliveryType === "STOPDESK" ? 2 : 1,
+      type: 1, // 1 = Livraison (delivery). This store never creates Échange (exchange) orders.
+      stopdesk: order.deliveryType === "STOPDESK" ? 1 : 0,
     });
 
     const obj = raw as { success?: boolean; tracking?: string } | null;
