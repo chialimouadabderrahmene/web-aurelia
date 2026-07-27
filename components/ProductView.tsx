@@ -167,54 +167,55 @@ export default function ProductView({ product }: { product: ViewProduct }) {
             </p>
           )}
 
-          {/* Color selector */}
-          {product.colors.length > 0 && (
-            <div className="mt-8">
-              <p className="font-body text-sm text-ink/70">
-                {dict.common.color} — <span className="text-ink">{colorName}</span>
-              </p>
-              <div className="mt-3 flex gap-3">
-                {product.colors.map((c, i) => (
-                  <button
-                    key={c.nameEn}
-                    onClick={() => setColorIdx(i)}
-                    aria-label={c.nameEn}
-                    className={`h-9 w-9 rounded-full border-2 transition-all ${
-                      i === colorIdx ? "border-gold scale-110" : "border-transparent"
-                    }`}
-                  >
-                    <span
-                      className="block h-full w-full rounded-full border border-ink/10"
-                      style={{ backgroundColor: c.hex }}
-                    />
-                  </button>
-                ))}
+          {/* Color + Quantity */}
+          <div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-5">
+            {product.colors.length > 0 && (
+              <div>
+                <p className="font-body text-sm text-ink/70">
+                  {dict.common.color} — <span className="text-ink">{colorName}</span>
+                </p>
+                <div className="mt-3 flex gap-3">
+                  {product.colors.map((c, i) => (
+                    <button
+                      key={c.nameEn}
+                      onClick={() => setColorIdx(i)}
+                      aria-label={c.nameEn}
+                      className={`h-9 w-9 rounded-full border-2 transition-all ${
+                        i === colorIdx ? "border-gold scale-110" : "border-transparent"
+                      }`}
+                    >
+                      <span
+                        className="block h-full w-full rounded-full border border-ink/10"
+                        style={{ backgroundColor: c.hex }}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Quantity */}
-          <div className="mt-8 flex items-center gap-4">
-            <p className="font-body text-sm text-ink/70">{dict.common.quantity}</p>
-            <div className="flex items-center gap-4 rounded-full border border-line px-3 py-2">
-              <button
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="flex h-6 w-6 items-center justify-center text-ink/60 hover:text-ink"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="w-4 text-center font-body text-sm">{qty}</span>
-              <button
-                onClick={() => setQty((q) => q + 1)}
-                className="flex h-6 w-6 items-center justify-center text-ink/60 hover:text-ink"
-              >
-                <Plus size={14} />
-              </button>
+            <div>
+              <p className="font-body text-sm text-ink/70">{dict.common.quantity}</p>
+              <div className="mt-3 flex items-center gap-4 rounded-full border border-line px-3 py-2">
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  className="flex h-6 w-6 items-center justify-center text-ink/60 hover:text-ink"
+                >
+                  <Minus size={14} />
+                </button>
+                <span className="w-4 text-center font-body text-sm">{qty}</span>
+                <button
+                  onClick={() => setQty((q) => q + 1)}
+                  className="flex h-6 w-6 items-center justify-center text-ink/60 hover:text-ink"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Wishlist */}
-          <div className="mt-9 hidden md:flex">
+          <div className="mt-6 hidden md:flex">
             <button
               onClick={() => toggleWishlist(product.slug)}
               aria-label="Toggle wishlist"
@@ -226,7 +227,7 @@ export default function ProductView({ product }: { product: ViewProduct }) {
           </div>
 
           {/* Buy Now — direct checkout */}
-          <div id="buy-now-form" className="mt-9 scroll-mt-24">
+          <div id="buy-now-form" className="mt-6 scroll-mt-24">
             <BuyNowForm
               slug={product.slug}
               productName={product.nameEn}

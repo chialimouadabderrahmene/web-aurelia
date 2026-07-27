@@ -174,9 +174,9 @@ export default function BuyNowForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl3 border border-gold/20 bg-sand/60 p-6">
-      <p className="font-display text-lg text-ink">{header?.title ?? dict.buyNow.title}</p>
-      <p className="mt-1 font-body text-xs text-ink/50">{header?.subtitle ?? dict.buyNow.subtitle}</p>
+    <form onSubmit={onSubmit} className="rounded-xl3 bg-ink p-6">
+      <p className="font-display text-lg text-white">{header?.title ?? dict.buyNow.title}</p>
+      <p className="mt-1 font-body text-xs text-white/50">{header?.subtitle ?? dict.buyNow.subtitle}</p>
 
       <div className="mt-5 space-y-3">
         <input
@@ -242,12 +242,12 @@ export default function BuyNowForm({
               onClick={() => setDeliveryType(type)}
               className={`flex min-h-[52px] items-center justify-between rounded-xl2 border px-4 py-3 font-body text-xs transition-colors ${
                 deliveryType === type
-                  ? "border-gold bg-gold/5 text-ink"
-                  : "border-line bg-cream text-ink/70 hover:border-ink/20"
+                  ? "border-gold bg-gold/10 text-white"
+                  : "border-white/15 bg-white/5 text-white/60 hover:border-white/30"
               }`}
             >
               <span>{type === "HOME" ? dict.checkout.homeDelivery : dict.checkout.stopdesk}</span>
-              <span className="text-ink/50">
+              <span className="text-white/50">
                 {selectedDelivery
                   ? formatDzd(type === "HOME" ? selectedDelivery.homePrice : selectedDelivery.stopdeskPrice)
                   : "—"}
@@ -264,13 +264,13 @@ export default function BuyNowForm({
             className="input !py-3.5 !text-base"
           />
         ) : (
-          <p className="rounded-xl2 bg-gold/5 px-4 py-3 font-body text-xs text-ink/60">
+          <p className="rounded-xl2 bg-gold/10 px-4 py-3 font-body text-xs text-white/70">
             {dict.checkout.stopdeskNote}
           </p>
         )}
       </div>
 
-      <div className="mt-4 space-y-1 border-t border-ink/10 pt-4 font-body text-sm text-ink/70">
+      <div className="mt-4 space-y-1 border-t border-white/10 pt-4 font-body text-sm text-white/60">
         <div className="flex justify-between">
           <span>
             {productName} × {qty} ({color})
@@ -281,18 +281,22 @@ export default function BuyNowForm({
           <span>{dict.common.shipping}</span>
           <span>{wilaya ? formatDzd(deliveryFee) : "—"}</span>
         </div>
-        <div className="flex justify-between pt-1 font-body text-base text-ink">
+        <div className="flex justify-between pt-1 font-body text-base text-white">
           <span>{dict.common.total}</span>
           <span>{formatDzd(total)}</span>
         </div>
       </div>
 
-      {error && <p className="mt-3 font-body text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 font-body text-sm text-red-400">{error}</p>}
 
-      <button type="submit" disabled={submitting} className="btn-primary mt-4 w-full disabled:opacity-50">
+      <button
+        type="submit"
+        disabled={submitting}
+        className="mt-4 inline-flex w-full items-center justify-center rounded-xl3 bg-gold px-8 py-4 font-body text-[13px] font-medium uppercase tracking-widest2 text-ink transition-all duration-500 ease-premium hover:bg-gold-soft active:scale-[0.98] disabled:opacity-50"
+      >
         {submitting ? dict.checkout.placingOrder : `${dict.buyNow.submit} — ${formatDzd(total)}`}
       </button>
-      <p className="mt-2 text-center font-body text-xs text-ink/40">{dict.checkout.cod}</p>
+      <p className="mt-2 text-center font-body text-xs text-white/40">{dict.checkout.cod}</p>
     </form>
   );
 }
