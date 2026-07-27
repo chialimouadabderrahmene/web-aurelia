@@ -6,6 +6,8 @@ import { CheckCircle2 } from "lucide-react";
 import { useCart } from "@/lib/store";
 import { formatDzd } from "@/lib/utils";
 import { wilayas } from "@/lib/wilayas";
+import { WILAYA_BY_NAME } from "@/lib/geo/wilayas-list";
+import { COMMUNES_BY_WILAYA_CODE } from "@/lib/geo/communes";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import { getSessionId } from "@/lib/session";
@@ -25,6 +27,7 @@ export default function CheckoutPage() {
   const [contactPhone, setContactPhone] = useState("");
   const [deliveryPrices, setDeliveryPrices] = useState<DeliveryPrice[]>([]);
   const [selectedWilaya, setSelectedWilaya] = useState("");
+  const [commune, setCommune] = useState("");
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("HOME");
   const [confirmMsg, setConfirmMsg] = useState<{ title: string; body: string } | null>(null);
   const subtotal = items.reduce((n, i) => n + i.price * i.qty, 0);
@@ -38,6 +41,14 @@ export default function CheckoutPage() {
   const { dict, locale } = useLocale();
   const hasFiredInitiateCheckout = useRef(false);
   const hasSubmitted = useRef(false);
+  const communeOptions = selectedWilaya
+    ? COMMUNES_BY_WILAYA_CODE[WILAYA_BY_NAME[selectedWilaya]?.code ?? ""] ?? []
+    : [];
+
+  function onWilayaChange(value: string) {
+    setSelectedWilaya(value);
+    setCommune("");
+  }
 
   useEffect(() => {
     if (items.length === 0 || hasFiredInitiateCheckout.current) return;
@@ -96,8 +107,8 @@ export default function CheckoutPage() {
         customerName: form.get("name"),
         phone: form.get("phone"),
         wilaya: form.get("wilaya"),
-        commune: form.get("commune"),
-        address: (form.get("address") as string) || (form.get("commune") as string),
+        commune,
+        address: (form.get("address") as string) || commune,
         couponCode: (form.get("couponCode") as string) || undefined,
         giftCardCode: (form.get("giftCardCode") as string) || undefined,
         referralCode: (form.get("referralCode") as string) || undefined,
@@ -131,7 +142,7 @@ export default function CheckoutPage() {
       customer: {
         phone: contactPhone,
         firstName: contactName.split(/\s+/)[0],
-        commune: (form.get("commune") as string) ?? "",
+        commune,
         wilaya: selectedWilaya,
       },
     });
@@ -191,6 +202,7 @@ export default function CheckoutPage() {
             label={dict.checkout.phone}
             name="phone"
             type="tel"
+            inputMode="tel"
             placeholder={dict.checkout.phonePlaceholder}
             required
             onChange={setContactPhone}
@@ -204,8 +216,8 @@ export default function CheckoutPage() {
                 name="wilaya"
                 required
                 value={selectedWilaya}
-                onChange={(e) => setSelectedWilaya(e.target.value)}
-                className="w-full rounded-xl2 border border-line bg-cream px-5 py-3.5 font-body text-sm text-ink focus:border-gold focus:outline-none"
+                onChange={(e) => onWilayaChange(e.target.value)}
+                className="w-full rounded-xl2 border border-line bg-cream px-5 py-3.5 font-body text-base text-ink focus:border-gold focus:outline-none"
               >
                 <option value="">{dict.checkout.selectWilaya}</option>
                 {wilayas.map((w) => (
@@ -215,7 +227,28 @@ export default function CheckoutPage() {
                 ))}
               </select>
             </div>
-            <Field label={dict.checkout.commune} name="commune" placeholder={dict.checkout.communePlaceholder} required />
+            <div>
+              <label className="mb-2 block font-body text-xs uppercase tracking-wide text-ink/60">
+                {dict.checkout.commune}
+              </label>
+              <select
+                name="commune"
+                required
+                disabled={!selectedWilaya}
+                value={commune}
+                onChange={(e) => setCommune(e.target.value)}
+                className="w-full rounded-xl2 border border-line bg-cream px-5 py-3.5 font-body text-base text-ink focus:border-gold focus:outline-none disabled:opacity-50"
+              >
+                <option value="">
+                  {selectedWilaya ? dict.checkout.selectCommune : dict.checkout.selectWilayaFirst}
+                </option>
+                {communeOptions.map((c) => (
+                  <option key={c.en} value={locale === "ar" ? c.ar : c.en}>
+                    {locale === "ar" ? c.ar : c.en}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
@@ -348,6 +381,7 @@ function Field({
   label,
   name,
   type = "text",
+  inputMode,
   placeholder,
   required,
   onChange,
@@ -355,6 +389,7 @@ function Field({
   label: string;
   name: string;
   type?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   placeholder?: string;
   required?: boolean;
   onChange?: (value: string) => void;
@@ -367,10 +402,11 @@ function Field({
       <input
         name={name}
         type={type}
+        inputMode={inputMode}
         placeholder={placeholder}
         required={required}
         onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-        className="w-full rounded-xl2 border border-line bg-cream px-5 py-3.5 font-body text-sm text-ink placeholder:text-ink/40 focus:border-gold focus:outline-none"
+        className="w-full rounded-xl2 border border-line bg-cream px-5 py-3.5 font-body text-base text-ink placeholder:text-ink/40 focus:border-gold focus:outline-none"
       />
     </div>
   );

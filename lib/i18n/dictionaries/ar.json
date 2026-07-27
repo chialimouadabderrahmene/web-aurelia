@@ -137,6 +137,8 @@
     "selectWilaya": "اختاري الولاية",
     "commune": "البلدية",
     "communePlaceholder": "بلديتك",
+    "selectCommune": "اختاري البلدية",
+    "selectWilayaFirst": "اختاري الولاية أولاً",
     "address": "عنوان التوصيل",
     "addressPlaceholder": "الشارع، العمارة، الطابق",
     "deliveryType": "طريقة التوصيل",

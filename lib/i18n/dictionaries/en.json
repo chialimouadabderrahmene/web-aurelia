@@ -137,6 +137,8 @@
     "selectWilaya": "Select wilaya",
     "commune": "Commune",
     "communePlaceholder": "Your commune",
+    "selectCommune": "Select commune",
+    "selectWilayaFirst": "Select wilaya first",
     "address": "Delivery Address",
     "addressPlaceholder": "Street, building, floor",
     "deliveryType": "Delivery Method",

@@ -5,6 +5,8 @@ import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDzd } from "@/lib/utils";
 import { wilayas } from "@/lib/wilayas";
+import { WILAYA_BY_NAME } from "@/lib/geo/wilayas-list";
+import { COMMUNES_BY_WILAYA_CODE } from "@/lib/geo/communes";
 import { useLocale } from "@/components/i18n/LocaleProvider";
 import LocalizedLink from "@/components/i18n/LocalizedLink";
 import { getSessionId } from "@/lib/session";
@@ -76,6 +78,12 @@ export default function BuyNowForm({
       : selectedDelivery.homePrice
     : 0;
   const total = unitPrice * qty + deliveryFee;
+  const communeOptions = wilaya ? COMMUNES_BY_WILAYA_CODE[WILAYA_BY_NAME[wilaya]?.code ?? ""] ?? [] : [];
+
+  function onWilayaChange(value: string) {
+    setWilaya(value);
+    setCommune("");
+  }
 
   function triggerInitiateCheckout() {
     if (hasFiredInitiateCheckout.current) return;
@@ -199,7 +207,7 @@ export default function BuyNowForm({
           <select
             required
             value={wilaya}
-            onChange={(e) => setWilaya(e.target.value)}
+            onChange={(e) => onWilayaChange(e.target.value)}
             className="input !py-3.5 !text-base"
           >
             <option value="">{dict.checkout.selectWilaya}</option>
@@ -209,13 +217,22 @@ export default function BuyNowForm({
               </option>
             ))}
           </select>
-          <input
+          <select
             required
+            disabled={!wilaya}
             value={commune}
             onChange={(e) => setCommune(e.target.value)}
-            placeholder={dict.checkout.communePlaceholder}
-            className="input !py-3.5 !text-base"
-          />
+            className="input !py-3.5 !text-base disabled:opacity-50"
+          >
+            <option value="">
+              {wilaya ? dict.checkout.selectCommune : dict.checkout.selectWilayaFirst}
+            </option>
+            {communeOptions.map((c) => (
+              <option key={c.en} value={locale === "ar" ? c.ar : c.en}>
+                {locale === "ar" ? c.ar : c.en}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {(["HOME", "STOPDESK"] as const).map((type) => (
